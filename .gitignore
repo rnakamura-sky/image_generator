@@ -1,5 +1,8 @@
-# Created by https://www.toptal.com/developers/gitignore/api/visualstudiocode,python,venv
-# Edit at https://www.toptal.com/developers/gitignore?templates=visualstudiocode,python,venv
+# Created by https://www.toptal.com/developers/gitignore/api/visualstudiocode,python,venv,dotenv
+# Edit at https://www.toptal.com/developers/gitignore?templates=visualstudiocode,python,venv,dotenv
+
+### dotenv ###
+.env
 
 ### Python ###
 # Byte-compiled / optimized / DLL files
@@ -124,7 +127,6 @@ celerybeat.pid
 *.sage.py
 
 # Environments
-.env
 .venv
 env/
 venv/
@@ -204,4 +206,7 @@ pip-selfcheck.json
 .history
 .ionide
 
-# End of https://www.toptal.com/developers/gitignore/api/visualstudiocode,python,venv
+# End of https://www.toptal.com/developers/gitignore/api/visualstudiocode,python,venv,dotenv
+
+### modelファイルをコミットしない
+*.safetensors

@@ -27,3 +27,18 @@
     # モジュールのインストール
     pip install -r requirements.txt
     ```
+1. StableDiffusionのモデルファイルを取得して、フォルダに格納
+
+    Hugging Faceのstable-diffusion-v1-5を使用します。
+    初めてのため、[v1-5-pruned-emaonly.safetensors]を使用します
+    - [stable-diffusion-v1-5/stable-diffusion-v1-5](https://huggingface.co/stable-diffusion-v1-5/stable-diffusion-v1-5/blob/main/v1-5-pruned-emaonly.safetensors)
+    
+    取得したら、下記フォルダに格納します。
+    
+    `(プロジェクトフォルダ)/rsc/models/stable-diffusion`
+
+## 実行方法
+
+```bash
+python src\image_generate.py
+```
