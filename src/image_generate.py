@@ -15,6 +15,10 @@ from diffusers import StableDiffusionPipeline
 PROMPT = "a cute anime-style tortoise, hight quality"
 IMAGE_NAME = "test.png"
 
+# diffusersがHTTP通信を行わないよう設定
+os.environ["HF_HUB_OFFLINE"] = "1"
+os.environ["TRANSFORMERS_OFFLINE"] = "1"
+
 # .envファイルの読み込み
 load_dotenv()
 
@@ -71,6 +75,7 @@ if __name__ == '__main__':
         torch_dtype=dtype,
         use_safetensors=True,
         safety_checker=None,    # シンプルにするため、OFF
+        local_files_only=True,
     )
     pipe = pipe.to(device)
     logger.info("Model loaded in %.2fs", time.time() - start)
