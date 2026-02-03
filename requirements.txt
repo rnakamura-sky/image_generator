@@ -3,6 +3,7 @@ torchvision
 torchaudio
 diffusers
 transformers
+peft
 accelerate
 safetensors
 
