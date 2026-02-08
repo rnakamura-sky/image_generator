@@ -20,17 +20,27 @@ if "do_generate" not in st.session_state:
 if "image" not in st.session_state:
     st.session_state.image = None
 
+DEFAULT_PROMPT = """masterpiece, best quality, high detail,
+a quiet mountain landscape at sunrise,
+misty valley, soft light, natural colors,
+cinematic composition
+"""
+
+DEFAULT_NEGATIVE_PROMPT = """worst quality, low quality, blurry,
+overexposed, underexposed,
+jpeg artifacts, distorted
+"""
 
 # --- UI ---
 prompt = st.text_area(
     "Prompt",
-    "masterpiece, best quality, anime style girl",
+    DEFAULT_PROMPT,
     disabled=st.session_state.is_generating
 )
 
 negative = st.text_area(
     "Negative Prompt",
-    "low quality, worst quality, bad anatomy",
+    DEFAULT_NEGATIVE_PROMPT,
     disabled=st.session_state.is_generating
 )
 
@@ -39,7 +49,7 @@ steps = st.slider(
     disabled=st.session_state.is_generating
 )
 cfg = st.slider(
-    "CFG Scale", 3.0, 12.0, 7.5,
+    "CFG Scale", 3.0, 10.0, 7.5,
     disabled=st.session_state.is_generating
 )
 width = st.selectbox(
@@ -82,6 +92,11 @@ if st.session_state.do_generate:
 
         st.session_state.image = image
         st.image(image)
+
+        # GPUメモリ開放
+        if pipe.device == "cuda":
+            torch.cuda.empty_cache()
+
     finally:
         st.session_state.is_generating = False
         st.rerun()

@@ -33,7 +33,7 @@ LORA_MODEL_FOLDER = os.path.join(
     "rsc/models",
     "stable-diffusion/sd15/lora/style"
 )
-LORA_MODEL_NAME = "ghibli_style_offset.safetensors"
+LORA_MODEL_NAME = "Ghibli_v6.safetensors"
 
 class StableDiffusionManager:
     """Stable Diffusionを管理するクラス
