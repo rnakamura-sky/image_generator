@@ -6,7 +6,10 @@ import logging
 import os
 
 import torch
-from diffusers import StableDiffusionPipeline
+from diffusers import (
+    StableDiffusionPipeline,
+    StableDiffusionImg2ImgPipeline
+)
 
 logger = logging.getLogger(__name__)
 
@@ -35,47 +38,53 @@ LORA_MODEL_FOLDER = os.path.join(
 )
 LORA_MODEL_NAME = "Ghibli_v6.safetensors"
 
-class StableDiffusionManager:
+class PipelineManager:
     """Stable Diffusionを管理するクラス
+    シングルトンにします
     """
-    _pipe = None
+    def __init__(self, device: str):
+        self.device = device
+        self.dtype = torch.float16 if self.device == "cuda"else torch.float32
 
-    @classmethod
-    def get_pipeline(cls):
-        """
-        pipeline取得
-        """
-        if cls._pipe is not None:
-            return cls._pipe
-
-        device = "cuda" if torch.cuda.is_available() else "cpu"
-        dtype = torch.float16 if device == "cuda"else torch.float32
-
-        logger.info("Using device: %s", device)
+        logger.info("Using device: %s", self.device)
         logger.info("Using model: %s", MODEL_FILE_PATH)
         logger.info("Using LoRA model: %s", os.path.join(LORA_MODEL_FOLDER, LORA_MODEL_NAME))
 
         # StableDiffusionのパイプラインを設定
-        pipe = StableDiffusionPipeline.from_single_file(
+        self.txt2img = StableDiffusionPipeline.from_single_file(
             pretrained_model_link_or_path=MODEL_FILE_PATH,
-            torch_dtype=dtype,
+            torch_dtype=self.dtype,
             use_safetensors=True,
             safety_checker=None,    # シンプルにするため、OFF
             local_files_only=True,
-        )
-        pipe = pipe.to(device)
+        ).to(self.device)
 
         # LoRAを設定
-        pipe.load_lora_weights(
+        self.txt2img.load_lora_weights(
             LORA_MODEL_FOLDER,
             weight_name=LORA_MODEL_NAME,
             adapter_name="style"
         )
-        pipe.set_adapters(["style"], adapter_weights=[1.0])
+        self.txt2img.set_adapters(["style"], adapter_weights=[1.0])
 
-        # GPU(デバイスがcuda)の場合はスライ寝具を設定
-        if device == "cuda":
-            pipe.enable_attention_slicing()
+        # GPU(デバイスがcuda)の場合はスライシングを設定
+        if self.device == "cuda":
+            self.txt2img.enable_attention_slicing()
 
-        cls._pipe = pipe
-        return cls._pipe
+        self.img2img = StableDiffusionImg2ImgPipeline(
+            vae=self.txt2img.vae,
+            text_encoder=self.txt2img.text_encoder,
+            tokenizer=self.txt2img.tokenizer,
+            unet=self.txt2img.unet,
+            scheduler=self.txt2img.scheduler,
+            safety_checker=None,
+            feature_extractor=None,
+        ).to(self.device)
+
+        # LoRAを設定
+        self.img2img.load_lora_weights(
+            LORA_MODEL_FOLDER,
+            weight_name=LORA_MODEL_NAME,
+            adapter_name="style2"
+        )
+        self.img2img.set_adapters(["style2"], adapter_weights=[1.0])
